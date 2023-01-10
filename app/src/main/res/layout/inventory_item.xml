@@ -9,7 +9,8 @@
     <ImageView
         android:id="@+id/imgItem"
         android:layout_width="0dp"
-        android:layout_height="128dp"
+        android:layout_height="256dp"
+        android:scaleType="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -20,12 +21,12 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="24dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="80dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/textQTY"
+        app:layout_constraintEnd_toStartOf="@+id/imgbuttonRemove"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imgItem"
         tools:text="some item" />
@@ -34,23 +35,58 @@
         android:id="@+id/textQTY"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
         android:text="TextView"
-        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-        app:layout_constraintBottom_toBottomOf="@+id/textItemName"
-        app:layout_constraintEnd_toStartOf="@+id/imgbuttonRemove"
-        app:layout_constraintTop_toTopOf="@+id/textItemName"
-        tools:text="56" />
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        app:layout_constraintStart_toStartOf="@+id/textView5"
+        app:layout_constraintTop_toBottomOf="@+id/textView5"
+        tools:text="156" />
 
     <ImageButton
         android:id="@+id/imgbuttonRemove"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
+        android:layout_marginEnd="24dp"
         android:backgroundTint="@color/backgroundColor"
         android:padding="2dp"
-        app:layout_constraintBottom_toBottomOf="@+id/textQTY"
+        app:layout_constraintBottom_toBottomOf="@+id/textItemName"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/textQTY"
+        app:layout_constraintTop_toTopOf="@+id/textItemName"
         app:srcCompat="@drawable/icon_remove" />
+
+    <TextView
+        android:id="@+id/textItemPrice"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:text="120 OMR"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/textItemName"
+        app:layout_constraintStart_toStartOf="@+id/textView3"
+        app:layout_constraintTop_toBottomOf="@+id/textView3" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Item Name"
+        app:layout_constraintBottom_toTopOf="@+id/textItemName"
+        app:layout_constraintStart_toStartOf="@+id/textItemName" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="price"
+        app:layout_constraintStart_toStartOf="@+id/textItemName"
+        app:layout_constraintTop_toBottomOf="@+id/textItemName" />
+
+    <TextView
+        android:id="@+id/textView5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="QTY"
+        app:layout_constraintStart_toStartOf="@+id/imgbuttonRemove"
+        app:layout_constraintTop_toTopOf="@+id/textView3" />
 </androidx.constraintlayout.widget.ConstraintLayout>

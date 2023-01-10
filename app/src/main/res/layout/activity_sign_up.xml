@@ -8,7 +8,7 @@
     tools:context=".SignUpActivity">
 
     <ImageView
-        android:id="@+id/ivAppIcon"
+        android:id="@+id/imgIcon"
         android:layout_width="128dp"
         android:layout_height="128dp"
         android:layout_marginTop="64dp"
@@ -32,7 +32,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ivAppIcon" />
+        app:layout_constraintTop_toBottomOf="@+id/imgIcon" />
 
     <EditText
         android:id="@+id/inputEmail"
