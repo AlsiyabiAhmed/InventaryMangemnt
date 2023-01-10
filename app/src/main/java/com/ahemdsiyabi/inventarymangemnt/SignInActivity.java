@@ -35,8 +35,11 @@ public class SignInActivity extends AppCompatActivity {
         inputPassword = findViewById(R.id.inputPassword);
 
         Button buttonSignIn = findViewById(R.id.buttonSignIn);
-        buttonSignIn.setOnClickListener(v -> {
-            checkInputsData();
+        buttonSignIn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                checkInputsData();
+            }
         });
 
         Button buttonSignUp = findViewById(R.id.buttonSignUp);

@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -53,8 +54,11 @@ public class SignUpActivity extends AppCompatActivity {
         inputRewritePassword = findViewById(R.id.inputRewritePassword);
 
         Button buttonSignUp = findViewById(R.id.buttonSignUp);
-        buttonSignUp.setOnClickListener(v -> {
-            checkInputsData();
+        buttonSignUp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                checkInputsData();
+            }
         });
 
 
