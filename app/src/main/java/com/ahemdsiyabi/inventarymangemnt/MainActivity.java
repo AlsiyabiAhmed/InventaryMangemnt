@@ -10,11 +10,14 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import com.ahemdsiyabi.inventarymangemnt.mypackage.FBConstants;
 import com.ahemdsiyabi.inventarymangemnt.mypackage.IMAdapter;
 import com.ahemdsiyabi.inventarymangemnt.mypackage.IMItem;
+import com.ahemdsiyabi.inventarymangemnt.mypackage.OnItemClickedCallback;
+import com.ahemdsiyabi.inventarymangemnt.mypackage.OnItemDeleteCallback;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -55,18 +58,21 @@ public class MainActivity extends AppCompatActivity {
         rvItems = findViewById(R.id.rvItems);
 
         FloatingActionButton fabAddItem = findViewById(R.id.fabAddItem);
-        fabAddItem.setOnClickListener(v -> {
-            openActivityAddOrder();
+        fabAddItem.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                moveToAddActivity();
+            }
         });
 
-        readDBOrders();
+        readItemsFromFB();
 
         setupRecyclerView();
 
 
     }
 
-    private void readDBOrders() {
+    private void readItemsFromFB() {
 
         // Read from the database
         FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -105,10 +111,20 @@ public class MainActivity extends AppCompatActivity {
         rvItems.setAdapter(mAdapter);
 
         //set on itemClickListener
-        mAdapter.setOnItemClicked(this::openActivityUpdateOrder);
+        mAdapter.setOnItemClicked(new OnItemClickedCallback() {
+            @Override
+            public void onItemClicked(IMItem item) {
+                moveToUpdateActivity(item);
+            }
+        });
 
         //set on itemDeleteClickListener
-        mAdapter.setOnItemDeleteClicked(this::showDeleteDialog);
+        mAdapter.setOnItemDeleteClicked(new OnItemDeleteCallback() {
+            @Override
+            public void onItemDeleteClicked(IMItem item) {
+                checkQTY(item);
+            }
+        });
 
         // Set layout manager to position the items
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
@@ -117,15 +133,54 @@ public class MainActivity extends AppCompatActivity {
         rvItems.addItemDecoration(divider);
     }
 
-    private void openActivityAddOrder() {
-        Intent AddOrderIntent = new Intent(MainActivity.this, AddActivity.class);
-        startActivity(AddOrderIntent);
+
+    private void moveToAddActivity() {
+        Intent i = new Intent(MainActivity.this, AddActivity.class);
+        startActivity(i);
     }
 
-    private void openActivityUpdateOrder(IMItem imItem) {
-        Intent updateOrderIntent = new Intent(MainActivity.this, UpdateActivity.class);
-        updateOrderIntent.putExtra(FBConstants.EXTRA_KEY_ITEM, imItem.getItemName());
-        startActivity(updateOrderIntent);
+    private void moveToUpdateActivity(IMItem imItem) {
+        Intent i = new Intent(MainActivity.this, UpdateActivity.class);
+        i.putExtra(FBConstants.EXTRA_KEY_ITEM, imItem);
+        startActivity(i);
+    }
+
+    private void checkQTY(IMItem item) {
+
+        int qty = Integer.parseInt(item.getItemQTY());
+        if (qty > 1) {
+            String newQTY = String.valueOf(--qty);
+            item.setItemQTY(newQTY);
+            updateItemQTY(item);
+        } else {
+            showDeleteDialog(item);
+        }
+
+    }
+
+    private void updateItemQTY(IMItem item) {
+        // Write a message to the database
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database
+                .getReference(FBConstants.FB_KEY_USERS)
+                .child(firebaseUser.getUid())
+                .child(FBConstants.FB_KEY_ITEMS)
+                .child(item.getItemId())
+                .child(FBConstants.FB_KEY_ITEMS_ITEM_QTY);
+
+        myRef.setValue(item.getItemQTY()).addOnCompleteListener(this, task -> {
+            if (task.isSuccessful()) {
+                // Sign in success, update UI with the signed-in user's information
+                Log.d("MainAct", "Created Successfully");
+
+
+            } else {
+                // If sign in fails, display a message to the user.
+                Log.w("MainAct", "Creation:failed", task.getException());
+                Toast.makeText(MainActivity.this, "Authentication failed.",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void showDeleteDialog(IMItem imItem) {
@@ -145,7 +200,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
         alert = builder.create();
         alert.show();
     }
@@ -157,7 +211,6 @@ public class MainActivity extends AppCompatActivity {
                 .child(firebaseUser.getUid())
                 .child(FBConstants.FB_KEY_ITEMS)
                 .child(imItem.getItemId());
-
 
         myRef.removeValue().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {

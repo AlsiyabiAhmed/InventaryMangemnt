@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.ahemdsiyabi.inventarymangemnt.R;
+import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 
@@ -30,9 +31,9 @@ public class IMAdapter extends RecyclerView.Adapter<IMAdapter.MyViewHolder> {
         notifyItemRangeChanged(0, newItems.size());
     }
 
-    public void addItems(IMItem newOrderItem) {
-        itemsArraylist.add(newOrderItem);
-        int position = itemsArraylist.indexOf(newOrderItem);
+    public void addItems(IMItem newItems) {
+        itemsArraylist.add(newItems);
+        int position = itemsArraylist.indexOf(newItems);
         notifyItemInserted(position);
     }
 
@@ -55,6 +56,7 @@ public class IMAdapter extends RecyclerView.Adapter<IMAdapter.MyViewHolder> {
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         IMItem imItem = itemsArraylist.get(position);
         holder.textItemName.setText(imItem.getItemName());
+        holder.textItemPrice.setText(imItem.getItemPrice());
         holder.textQTY.setText(imItem.getItemQTY());
         holder.itemView.setOnClickListener(v -> {
             onClickCallback.onItemClicked(imItem);
@@ -62,6 +64,14 @@ public class IMAdapter extends RecyclerView.Adapter<IMAdapter.MyViewHolder> {
         holder.imgButtonRemove.setOnClickListener(view -> {
             onDeleteCallback.onItemDeleteClicked(imItem);
         });
+
+
+        Glide
+                .with(holder.itemView.getContext())
+                .load(imItem.getItemImg())
+                .centerCrop()
+                .placeholder(R.drawable.icon_add_item)
+                .into(holder.imgItem);
 
     }
 
@@ -80,10 +90,10 @@ public class IMAdapter extends RecyclerView.Adapter<IMAdapter.MyViewHolder> {
     }
 
 
-
     public static class MyViewHolder extends RecyclerView.ViewHolder {
         ImageView imgItem;
         TextView textItemName;
+        TextView textItemPrice;
         TextView textQTY;
         ImageView imgButtonRemove;
 
@@ -91,6 +101,7 @@ public class IMAdapter extends RecyclerView.Adapter<IMAdapter.MyViewHolder> {
             super(itemView);
             imgItem = itemView.findViewById(R.id.imgItem);
             textItemName = itemView.findViewById(R.id.textItemName);
+            textItemPrice = itemView.findViewById(R.id.textItemPrice);
             textQTY = itemView.findViewById(R.id.textQTY);
             imgButtonRemove = itemView.findViewById(R.id.imgbuttonRemove);
         }
