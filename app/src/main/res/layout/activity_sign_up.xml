@@ -119,4 +119,17 @@
         app:layout_constraintTop_toTopOf="parent" />
 
 
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="AL BADI CAR PARTS"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        app:layout_constraintEnd_toEndOf="@+id/imgItem"
+        app:layout_constraintStart_toStartOf="@+id/imgItem"
+        app:layout_constraintTop_toBottomOf="@+id/imgItem" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>
