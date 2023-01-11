@@ -1,18 +1,33 @@
 package com.ahemdsiyabi.inventarymangemnt;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 
 import com.ahemdsiyabi.inventarymangemnt.mypackage.FBConstants;
 import com.ahemdsiyabi.inventarymangemnt.mypackage.IMItem;
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.util.Log;
+import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -24,8 +39,8 @@ public class UpdateActivity extends AppCompatActivity {
     private FirebaseUser firebaseUser;
     private IMItem imItemOld;
 
-
-    private ImageView imgIcon;
+    private Uri selectedImageUri;
+    private ImageView imgItem;
     private EditText inputItemName;
     private EditText inputItemPrice;
     private EditText inputItemQTY;
@@ -46,7 +61,7 @@ public class UpdateActivity extends AppCompatActivity {
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = firebaseAuth.getCurrentUser();
 
-        imgIcon = findViewById(R.id.imgItem);
+        imgItem = findViewById(R.id.imgItem);
         inputItemName = findViewById(R.id.inputItemName);
         inputItemPrice = findViewById(R.id.inputItemPrice);
         inputItemQTY = findViewById(R.id.inputItemQTY);
@@ -55,14 +70,14 @@ public class UpdateActivity extends AppCompatActivity {
         inputItemPrice.setText(imItemOld.getItemPrice());
         inputItemQTY.setText(imItemOld.getItemQTY());
 
-        Log.e("url", "onCreate: " + imItemOld.getItemImg());
-
-        Glide.with(imgIcon.getContext())
+        Glide.with(imgItem.getContext())
                 .load(imItemOld.getItemImg())
-                .centerCrop()
                 .placeholder(R.drawable.icon_add_item)
-                .into(imgIcon);
+                .into(imgItem);
 
+        imgItem.setOnClickListener(view -> {
+            imageChooser();
+        });
 
         Button buttonUpdateItem = findViewById(R.id.buttonUpdateItem);
         buttonUpdateItem.setOnClickListener(view -> {
@@ -71,6 +86,33 @@ public class UpdateActivity extends AppCompatActivity {
 
 
     }
+
+
+    void imageChooser() {
+
+        // create an instance of the
+        // intent of the type image
+        Intent i = new Intent();
+        i.setType("image/*");
+        i.setAction(Intent.ACTION_GET_CONTENT);
+
+        launcher.launch(i);
+    }
+
+    // open gallery and wait for the user to select a single img
+    ActivityResultLauncher<Intent> launcher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        // There are no request codes
+                        Intent data = result.getData();
+                        selectedImageUri = data.getData();
+                        imgItem.setImageURI(selectedImageUri);
+                    }
+                }
+            });
 
 
     private void checkInputsData() {
@@ -111,12 +153,73 @@ public class UpdateActivity extends AppCompatActivity {
             if (task.isSuccessful()) {
                 // Sign in success, update UI with the signed-in user's information
                 Log.d("UpdateActivity", "Created Successfully");
-                finish();
+                uploadImageToFBStorage();
 
             } else {
                 // If sign in fails, display a message to the user.
                 Log.w("UpdateActivity", "Creation:failed", task.getException());
                 Toast.makeText(UpdateActivity.this, "Authentication failed.",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
+    private void uploadImageToFBStorage() {
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        // Create a Cloud Storage reference from the app
+        StorageReference storageRef = storage.getReference();
+
+        // Create a reference to "mountains.jpg"
+        StorageReference imgRef = storageRef
+                .child(firebaseUser.getUid())
+                .child(selectedImageUri.getLastPathSegment());
+
+        UploadTask uploadTask = imgRef.putFile(selectedImageUri);
+        Task<Uri> urlTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+            @Override
+            public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                if (!task.isSuccessful()) {
+                    throw task.getException();
+                }
+
+                // Continue with the task to get the download URL
+                return imgRef.getDownloadUrl();
+            }
+        }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+            @Override
+            public void onComplete(@NonNull Task<Uri> task) {
+                if (task.isSuccessful()) {
+                    Uri downloadUri = task.getResult();
+                    updateItemImage(downloadUri);
+                } else {
+                    // Handle failures
+                    // ...
+                }
+            }
+        });
+    }
+
+    private void updateItemImage(Uri storageURL) {
+        // Write a message to the database
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database
+                .getReference(FBConstants.FB_KEY_USERS)
+                .child(firebaseUser.getUid())
+                .child(FBConstants.FB_KEY_ITEMS)
+                .child(imItemOld.getItemId())
+                .child(FBConstants.FB_KEY_ITEMS_ITEM_IMG);
+
+        myRef.setValue(storageURL.toString()).addOnCompleteListener(this, task -> {
+            if (task.isSuccessful()) {
+                // Sign in success, update UI with the signed-in user's information
+                Log.d("MainAct", "upload Successfully done");
+
+
+            } else {
+                // If sign in fails, display a message to the user.
+                Log.w("MainAct", "Upload img Failed.", task.getException());
+                Toast.makeText(UpdateActivity.this, "Upload img Failed.",
                         Toast.LENGTH_SHORT).show();
             }
         });

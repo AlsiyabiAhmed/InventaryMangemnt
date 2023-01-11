@@ -56,7 +56,7 @@ public class IMAdapter extends RecyclerView.Adapter<IMAdapter.MyViewHolder> {
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         IMItem imItem = itemsArraylist.get(position);
         holder.textItemName.setText(imItem.getItemName());
-        holder.textItemPrice.setText(imItem.getItemPrice());
+        holder.textItemPrice.setText(imItem.getItemPrice() +" OMR");
         holder.textQTY.setText(imItem.getItemQTY());
         holder.itemView.setOnClickListener(v -> {
             onClickCallback.onItemClicked(imItem);
