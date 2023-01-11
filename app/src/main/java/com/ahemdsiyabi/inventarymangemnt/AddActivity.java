@@ -22,6 +22,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -137,6 +138,7 @@ public class AddActivity extends AppCompatActivity {
         } else if (itemQTY.length() == 0) {
             Toast.makeText(AddActivity.this, "enter item QTY", Toast.LENGTH_SHORT).show();
         } else {
+            progressBarToggle();
             createNewFBIMItem(itemName, itemPrice, itemQTY);
         }
     }
@@ -166,6 +168,7 @@ public class AddActivity extends AppCompatActivity {
 
             } else {
                 // If sign in fails, display a message to the user.
+                progressBarToggle();
                 Log.w("AddActivity", "Creation:failed", task.getException());
                 Toast.makeText(AddActivity.this, "Authentication failed.",
                         Toast.LENGTH_SHORT).show();
@@ -191,6 +194,7 @@ public class AddActivity extends AppCompatActivity {
             @Override
             public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
                 if (!task.isSuccessful()) {
+                    progressBarToggle();
                     throw task.getException();
                 }
 
@@ -201,11 +205,13 @@ public class AddActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<Uri> task) {
                 if (task.isSuccessful()) {
+
                     Uri downloadUri = task.getResult();
                     updateItemImage(downloadUri);
                 } else {
                     // Handle failures
                     // ...
+                    progressBarToggle();
                 }
             }
         });
@@ -227,10 +233,11 @@ public class AddActivity extends AppCompatActivity {
             if (task.isSuccessful()) {
                 // Sign in success, update UI with the signed-in user's information
                 Log.d("MainAct", "upload Successfully done");
-
+                progressBarToggle();
 
             } else {
                 // If sign in fails, display a message to the user.
+                progressBarToggle();
                 Log.w("MainAct", "Upload img Failed.", task.getException());
                 Toast.makeText(AddActivity.this, "Upload img Failed.",
                         Toast.LENGTH_SHORT).show();
@@ -243,5 +250,17 @@ public class AddActivity extends AppCompatActivity {
         return "https://fastech-racing.com/images/magictoolbox_cache/cf3e6ec01aac7cb79461bcfe9d0d075e/2/2/2259/thumb400x400/4008162058/skm_lipseal.jpg";
     }
 
+    private void progressBarToggle() {
+        View viewBlur = findViewById(R.id.viewBlur);
+        ProgressBar progressBar = findViewById(R.id.progressBar);
+
+        if (progressBar.getVisibility() == View.VISIBLE) {
+            viewBlur.setVisibility(View.GONE);
+            progressBar.setVisibility(View.GONE);
+        } else {
+            viewBlur.setVisibility(View.VISIBLE);
+            progressBar.setVisibility(View.VISIBLE);
+        }
+    }
 
 }

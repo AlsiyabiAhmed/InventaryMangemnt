@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -67,6 +68,7 @@ public class SignInActivity extends AppCompatActivity {
         } else if (pass.length() < 6) {
             Toast.makeText(SignInActivity.this, "password length less than 6 characters!", Toast.LENGTH_SHORT).show();
         } else {
+            progressBarToggle();
             signInByFB(email, pass);
         }
     }
@@ -77,10 +79,12 @@ public class SignInActivity extends AppCompatActivity {
 
                     if (task.isSuccessful()) {
                         // Sign in success
+                        progressBarToggle();
                         firebaseUser = firebaseAuth.getCurrentUser();
                         moveToMainActivity();
                     } else {
                         // If sign in fails, display a message to the user.
+                        progressBarToggle();
                         Log.w("SignInActivity", "signIn:failed", task.getException());
                         Toast.makeText(SignInActivity.this, "Authentication failed.",
                                 Toast.LENGTH_LONG).show();
@@ -96,8 +100,20 @@ public class SignInActivity extends AppCompatActivity {
     }
 
     private void moveToSignUpActivity() {
-        Intent i = new Intent(SignInActivity.this, SignInActivity.class);
+        Intent i = new Intent(SignInActivity.this, SignUpActivity.class);
         startActivity(i);
-        finish();
+    }
+
+    private void progressBarToggle() {
+        View viewBlur = findViewById(R.id.viewBlur);
+        ProgressBar progressBar = findViewById(R.id.progressBar);
+
+        if (progressBar.getVisibility() == View.VISIBLE) {
+            viewBlur.setVisibility(View.GONE);
+            progressBar.setVisibility(View.GONE);
+        } else {
+            viewBlur.setVisibility(View.VISIBLE);
+            progressBar.setVisibility(View.VISIBLE);
+        }
     }
 }

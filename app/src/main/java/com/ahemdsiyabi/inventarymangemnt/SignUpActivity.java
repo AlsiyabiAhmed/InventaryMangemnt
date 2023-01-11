@@ -9,6 +9,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.ahemdsiyabi.inventarymangemnt.mypackage.FBConstants;
@@ -89,8 +90,9 @@ public class SignUpActivity extends AppCompatActivity {
         } else if (rePass.length() < 6) {
             Toast.makeText(SignUpActivity.this, "rewrite password length less than 6 characters!", Toast.LENGTH_SHORT).show();
         } else if (!rePass.equals(pass)) {
-            Toast.makeText(SignUpActivity.this, "password not equal to rewrite password", Toast.LENGTH_SHORT).show();
+            Toast.makeText(SignUpActivity.this, "password not matching to rewrite password", Toast.LENGTH_SHORT).show();
         } else {
+            progressBarToggle();
             signUpToFB(pName, email, pass);
         }
     }
@@ -101,10 +103,12 @@ public class SignUpActivity extends AppCompatActivity {
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
                         // Sign in success
+
                         firebaseUser = firebaseAuth.getCurrentUser();
                         createNewFBUser(pName, email);
                     } else {
                         // If sign in fails
+                        progressBarToggle();
                         Log.d("SignUpActivity", "Sign in:failed", task.getException());
                         Toast.makeText(SignUpActivity.this, "Authentication failed.",
                                 Toast.LENGTH_SHORT).show();
@@ -127,11 +131,13 @@ public class SignUpActivity extends AppCompatActivity {
 
         myRef.child(u.getUserId()).setValue(u).addOnCompleteListener(this, task -> {
             if (task.isSuccessful()) {
-                // Sign in success, 
+                // Sign in success,
+                progressBarToggle();
                 moveToMainActivity();
 
             } else {
                 // If sign in fails
+                progressBarToggle();
                 Log.d("SignUpActivity", "Signup:failure", task.getException());
                 Toast.makeText(SignUpActivity.this, "Authentication failed.",
                         Toast.LENGTH_SHORT).show();
@@ -146,5 +152,17 @@ public class SignUpActivity extends AppCompatActivity {
         finish();
     }
 
+    private void progressBarToggle() {
+        View viewBlur = findViewById(R.id.viewBlur);
+        ProgressBar progressBar = findViewById(R.id.progressBar);
+
+        if (progressBar.getVisibility() == View.VISIBLE) {
+            viewBlur.setVisibility(View.GONE);
+            progressBar.setVisibility(View.GONE);
+        } else {
+            viewBlur.setVisibility(View.VISIBLE);
+            progressBar.setVisibility(View.VISIBLE);
+        }
+    }
 
 }

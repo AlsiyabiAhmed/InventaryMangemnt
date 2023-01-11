@@ -28,9 +28,11 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 public class UpdateActivity extends AppCompatActivity {
@@ -136,6 +138,7 @@ public class UpdateActivity extends AppCompatActivity {
     }
 
     private void updateFBIMItem(String itemName, String itemPrice, String itemQTY) {
+        progressBarToggle();
         // Write a message to the database
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database
@@ -156,6 +159,7 @@ public class UpdateActivity extends AppCompatActivity {
                 uploadImageToFBStorage();
 
             } else {
+                progressBarToggle();
                 // If sign in fails, display a message to the user.
                 Log.w("UpdateActivity", "Creation:failed", task.getException());
                 Toast.makeText(UpdateActivity.this, "Authentication failed.",
@@ -180,6 +184,7 @@ public class UpdateActivity extends AppCompatActivity {
             @Override
             public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
                 if (!task.isSuccessful()) {
+                    progressBarToggle();
                     throw task.getException();
                 }
 
@@ -195,6 +200,7 @@ public class UpdateActivity extends AppCompatActivity {
                 } else {
                     // Handle failures
                     // ...
+                    progressBarToggle();
                 }
             }
         });
@@ -214,9 +220,10 @@ public class UpdateActivity extends AppCompatActivity {
             if (task.isSuccessful()) {
                 // Sign in success, update UI with the signed-in user's information
                 Log.d("MainAct", "upload Successfully done");
-
+                progressBarToggle();
 
             } else {
+                progressBarToggle();
                 // If sign in fails, display a message to the user.
                 Log.w("MainAct", "Upload img Failed.", task.getException());
                 Toast.makeText(UpdateActivity.this, "Upload img Failed.",
@@ -229,5 +236,17 @@ public class UpdateActivity extends AppCompatActivity {
         return "https://fastech-racing.com/images/magictoolbox_cache/cf3e6ec01aac7cb79461bcfe9d0d075e/2/2/2259/thumb400x400/4008162058/skm_lipseal.jpg";
     }
 
+    private void progressBarToggle() {
+        View viewBlur = findViewById(R.id.viewBlur);
+        ProgressBar progressBar = findViewById(R.id.progressBar);
+
+        if (progressBar.getVisibility() == View.VISIBLE) {
+            viewBlur.setVisibility(View.GONE);
+            progressBar.setVisibility(View.GONE);
+        } else {
+            viewBlur.setVisibility(View.VISIBLE);
+            progressBar.setVisibility(View.VISIBLE);
+        }
+    }
 
 }

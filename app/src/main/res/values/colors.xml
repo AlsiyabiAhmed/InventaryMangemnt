@@ -9,6 +9,7 @@
     <color name="white">#FFFFFFFF</color>
 
     <color name="backgroundColor">#c1c4c5</color>
+    <color name="backgroundColorTransparent">#C2C1C4C5</color>
     <color name="themePrimary">#F57C00</color>
     <color name="themeSecondary">#EF6C00</color>
     <color name="btnPrimary">#F57C00</color>
