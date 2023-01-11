@@ -46,7 +46,7 @@ public class UpdateActivity extends AppCompatActivity {
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = firebaseAuth.getCurrentUser();
 
-        imgIcon = findViewById(R.id.imgIcon);
+        imgIcon = findViewById(R.id.imgItem);
         inputItemName = findViewById(R.id.inputItemName);
         inputItemPrice = findViewById(R.id.inputItemPrice);
         inputItemQTY = findViewById(R.id.inputItemQTY);

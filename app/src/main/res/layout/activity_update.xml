@@ -8,7 +8,7 @@
     tools:context=".UpdateActivity">
 
     <ImageView
-        android:id="@+id/imgIcon"
+        android:id="@+id/imgItem"
         android:layout_width="0dp"
         android:layout_height="256dp"
         android:src="@drawable/icon_add_item"
@@ -33,7 +33,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imgIcon" />
+        app:layout_constraintTop_toBottomOf="@+id/imgItem" />
 
     <EditText
         android:id="@+id/inputItemPrice"

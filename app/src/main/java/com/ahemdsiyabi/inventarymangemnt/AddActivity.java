@@ -1,7 +1,18 @@
 package com.ahemdsiyabi.inventarymangemnt;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContract;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityOptionsCompat;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -10,6 +21,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -28,9 +40,11 @@ public class AddActivity extends AppCompatActivity {
     private FirebaseUser firebaseUser;
 
     private String itemId;
+    private ImageView imgItem;
     private EditText inputItemName;
     private EditText inputItemPrice;
     private EditText inputItemQTY;
+
 
     // on default back button clicked close this screen
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -50,10 +64,16 @@ public class AddActivity extends AppCompatActivity {
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = firebaseAuth.getCurrentUser();
 
+        imgItem = findViewById(R.id.imgItem);
         inputItemName = findViewById(R.id.inputItemName);
         inputItemPrice = findViewById(R.id.inputItemPrice);
         inputItemQTY = findViewById(R.id.inputItemQTY);
 
+
+
+        imgItem.setOnClickListener(view -> {
+            imageChooser();
+        });
 
         Button buttonAddItem = findViewById(R.id.buttonAddItem);
         buttonAddItem.setOnClickListener(view -> {
@@ -62,6 +82,35 @@ public class AddActivity extends AppCompatActivity {
 
 
     }
+
+
+    void imageChooser() {
+
+        // create an instance of the
+        // intent of the type image
+        Intent i = new Intent();
+        i.setType("image/*");
+        i.setAction(Intent.ACTION_GET_CONTENT);
+
+        launcher.launch(i);
+    }
+
+
+    ActivityResultLauncher<Intent> launcher =  registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        // There are no request codes
+                        Intent data = result.getData();
+                        Uri selectedImageUri = data.getData();
+                        imgItem.setImageURI(selectedImageUri);
+                    }
+                }
+            });
+
+
 
 
     private void checkInputsData() {
