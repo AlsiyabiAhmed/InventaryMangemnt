@@ -27,17 +27,28 @@ import android.widget.Toast;
 
 import com.ahemdsiyabi.inventarymangemnt.mypackage.FBConstants;
 import com.ahemdsiyabi.inventarymangemnt.mypackage.IMItem;
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicMarkableReference;
 
 public class AddActivity extends AppCompatActivity {
 
     private FirebaseAuth firebaseAuth;
     private FirebaseUser firebaseUser;
+
+    private Uri selectedImageUri;
 
     private String itemId;
     private ImageView imgItem;
@@ -70,7 +81,6 @@ public class AddActivity extends AppCompatActivity {
         inputItemQTY = findViewById(R.id.inputItemQTY);
 
 
-
         imgItem.setOnClickListener(view -> {
             imageChooser();
         });
@@ -95,8 +105,8 @@ public class AddActivity extends AppCompatActivity {
         launcher.launch(i);
     }
 
-
-    ActivityResultLauncher<Intent> launcher =  registerForActivityResult(
+    // open gallery and wait for the user to select a single img
+    ActivityResultLauncher<Intent> launcher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             new ActivityResultCallback<ActivityResult>() {
                 @Override
@@ -104,13 +114,11 @@ public class AddActivity extends AppCompatActivity {
                     if (result.getResultCode() == Activity.RESULT_OK) {
                         // There are no request codes
                         Intent data = result.getData();
-                        Uri selectedImageUri = data.getData();
+                        selectedImageUri = data.getData();
                         imgItem.setImageURI(selectedImageUri);
                     }
                 }
             });
-
-
 
 
     private void checkInputsData() {
@@ -154,7 +162,7 @@ public class AddActivity extends AppCompatActivity {
             if (task.isSuccessful()) {
                 // Sign in success, update UI with the signed-in user's information
                 Log.d("AddActivity", "Created Successfully");
-                finish();
+                uploadImageToFBStorage();
 
             } else {
                 // If sign in fails, display a message to the user.
@@ -164,6 +172,72 @@ public class AddActivity extends AppCompatActivity {
             }
         });
     }
+
+
+    private void uploadImageToFBStorage() {
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        // Create a Cloud Storage reference from the app
+        StorageReference storageRef = storage.getReference();
+
+        // Create a reference to "mountains.jpg"
+        StorageReference imgRef = storageRef
+                .child(firebaseUser.getUid())
+                .child(selectedImageUri.getLastPathSegment());
+
+
+        UploadTask uploadTask = imgRef.putFile(selectedImageUri);
+
+        Task<Uri> urlTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+            @Override
+            public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                if (!task.isSuccessful()) {
+                    throw task.getException();
+                }
+
+                // Continue with the task to get the download URL
+                return imgRef.getDownloadUrl();
+            }
+        }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+            @Override
+            public void onComplete(@NonNull Task<Uri> task) {
+                if (task.isSuccessful()) {
+                    Uri downloadUri = task.getResult();
+                    updateItemImage(downloadUri);
+                } else {
+                    // Handle failures
+                    // ...
+                }
+            }
+        });
+
+
+    }
+
+    private void updateItemImage(Uri storageURL) {
+        // Write a message to the database
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database
+                .getReference(FBConstants.FB_KEY_USERS)
+                .child(firebaseUser.getUid())
+                .child(FBConstants.FB_KEY_ITEMS)
+                .child(itemId)
+                .child(FBConstants.FB_KEY_ITEMS_ITEM_IMG);
+
+        myRef.setValue(storageURL.toString()).addOnCompleteListener(this, task -> {
+            if (task.isSuccessful()) {
+                // Sign in success, update UI with the signed-in user's information
+                Log.d("MainAct", "upload Successfully done");
+
+
+            } else {
+                // If sign in fails, display a message to the user.
+                Log.w("MainAct", "Upload img Failed.", task.getException());
+                Toast.makeText(AddActivity.this, "Upload img Failed.",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
 
     private String getImageUrl() {
         return "https://fastech-racing.com/images/magictoolbox_cache/cf3e6ec01aac7cb79461bcfe9d0d075e/2/2/2259/thumb400x400/4008162058/skm_lipseal.jpg";

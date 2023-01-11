@@ -69,7 +69,6 @@ public class IMAdapter extends RecyclerView.Adapter<IMAdapter.MyViewHolder> {
         Glide
                 .with(holder.itemView.getContext())
                 .load(imItem.getItemImg())
-                .centerCrop()
                 .placeholder(R.drawable.icon_add_item)
                 .into(holder.imgItem);
 

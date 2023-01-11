@@ -5,4 +5,5 @@ public class FBConstants {
     public static final String FB_KEY_ITEMS = "fb_items";
     public static final String EXTRA_KEY_ITEM = "imItem";
     public static final String FB_KEY_ITEMS_ITEM_QTY = "itemQTY";
+    public static final String FB_KEY_ITEMS_ITEM_IMG = "itemImg";
 }
